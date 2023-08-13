@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+read local_ref local_sha remote_ref remote_sha
+
 ## read config
 if ! [[ -z $VAR_GIT_HOOKS_TEMPLATES_PATH ]]; then
     source ${VAR_GIT_HOOKS_TEMPLATES_PATH}Git.Hooks/global/config.sh
@@ -9,7 +11,7 @@ source ../Git.Hooks/global/config.sh
 source .githooks/config.sh
 
 ## check if any changes
-git diff $1.. --name-only --quiet
+git diff --name-only --quiet $local_ref..$1
 
 if [[ $? = 0 ]]; then
     exit 0

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ## check if terraform folder has changes
-git diff $1.. --name-only --quiet --cached -- ".terraform/*"
+git diff --name-only --quiet -- ".terraform/*"
 
 if [[ $? = 0 ]]; then
     return
