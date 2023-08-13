@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 
-source ${VAR_GIT_HOOKS_TEMPLATES_PATH}Git.Hooks/global/pre-push
-
 ## read dotnet config
-if ! [[ -z $VAR_GIT_HOOKS_TEMPLATES_PATH ]]; then
+if ! [[ -z $VAR_GIT_HOOKS_TEMPLATES_PATH || $VAR_GIT_HOOKS_TEMPLATES_PATH = $VAR_GIT_HOOKS_TEMPLATES_DEFAULT_PATH ]]; then
     source ${VAR_GIT_HOOKS_TEMPLATES_PATH}Git.Hooks/dotnet/config.sh
 fi
 
