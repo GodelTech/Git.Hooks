@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+## check if terraform folder has changes
+git diff $1.. --name-only --quiet --cached -- ".terraform/*"
+
+if [[ $? = 0 ]]; then
+    return
+fi
+
+## terraform recursive format check
+( cd .terraform && terraform fmt -check -recursive $VAR_TERRAFORM_OUTPUT_NO_COLOR )
+
+if [[ $? -ne 0 ]]; then
+    echo -e "${COLOR_RED}Invalid terraform format. Aborting push.${COLOR_NO}"
+    exit 1
+fi
+
+## terraform validate envs
+for folderPath in ${VAR_TERRAFORM_ENV_FOLDER_PATHS[@]}; do
+    ( cd .terraform/$folderPath && terraform init -backend=false $VAR_TERRAFORM_OUTPUT_NO_COLOR && terraform validate $VAR_TERRAFORM_OUTPUT_NO_COLOR )
+
+    if [[ $? -ne 0 ]]; then
+        echo -e "${COLOR_RED}Terraform not valid '.terraform/$folderPath'. Aborting push.${COLOR_NO}"
+        exit 1
+    fi
+done

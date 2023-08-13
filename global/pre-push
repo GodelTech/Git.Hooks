@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+## read config
+if ! [[ -z $VAR_GIT_HOOKS_TEMPLATES_PATH ]]; then
+    source ${VAR_GIT_HOOKS_TEMPLATES_PATH}Git.Hooks/global/config.sh
+fi
+
+source ../Git.Hooks/global/config.sh
+source .githooks/config.sh
+
+## check if any changes
+git diff $1.. --name-only --quiet
+
+if [[ $? = 0 ]]; then
+    exit 0
+fi
+
+## check uncommitted files
+if [[ ( -z $VAR_CHECK_UNCOMMITTED_FILES || $VAR_CHECK_UNCOMMITTED_FILES = true ) && $(git status --porcelain) ]]; then
+    echo -e "${COLOR_RED}Uncommitted files present. Aborting push.${COLOR_NO}"
+    exit 1
+fi

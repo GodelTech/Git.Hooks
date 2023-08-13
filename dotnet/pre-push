@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+source ${VAR_GIT_HOOKS_TEMPLATES_PATH}Git.Hooks/global/pre-push
+
+## read dotnet config
+if ! [[ -z $VAR_GIT_HOOKS_TEMPLATES_PATH ]]; then
+    source ${VAR_GIT_HOOKS_TEMPLATES_PATH}Git.Hooks/dotnet/config.sh
+fi
+
+source ../Git.Hooks/dotnet/config.sh
+
+## terraform
+source ${VAR_GIT_HOOKS_TEMPLATES_PATH}Git.Hooks/terraform/pre-push
+
+## dotnet restore
+dotnet restore
+
+if [[ $? -ne 0 ]]; then
+    echo -e "${COLOR_RED}Restore NuGet packages failed. Aborting push.${COLOR_NO}"
+    exit 1
+fi
+
+## dotnet build
+dotnet build --configuration $VAR_DOTNET_BUILD_CONFIGURATION --no-restore
+
+if [[ $? -ne 0 ]]; then
+    echo -e "${COLOR_RED}Build failed. Aborting push.${COLOR_NO}"
+    exit 1
+fi
+
+## dotnet format
+dotnet format --verify-no-changes --no-restore
+
+if [[ $? -ne 0 ]]; then
+    echo -e "${COLOR_RED}Code is not correctly formatted. Aborting push.${COLOR_NO}"
+    exit 1
+fi
+
+## NuGet validation
+source ${VAR_GIT_HOOKS_TEMPLATES_PATH}Git.Hooks/dotnet/NuGet/validation.sh
+
+## dotnet test
+find . -type d -name TestResults -exec rm -rf {} \;
+dotnet test --configuration $VAR_DOTNET_BUILD_CONFIGURATION --no-build --no-restore --collect:"XPlat Code Coverage" --settings .runsettings -- RunConfiguration.DisableAppDomain=true
+
+if [[ $? -ne 0 ]]; then
+    echo -e "${COLOR_RED}Tests failed. Aborting push.${COLOR_NO}"
+    exit 1
+fi
+
+## coverage validation
+source ${VAR_GIT_HOOKS_TEMPLATES_PATH}Git.Hooks/dotnet/coverage/validation.sh

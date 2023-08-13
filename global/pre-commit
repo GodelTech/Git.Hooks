@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+
+## read config
+if ! [[ -z $VAR_GIT_HOOKS_TEMPLATES_PATH ]]; then
+    source ${VAR_GIT_HOOKS_TEMPLATES_PATH}Git.Hooks/global/config.sh
+fi
+
+source ../Git.Hooks/global/config.sh
+source .githooks/config.sh
+
+echo -e "${COLOR_YELLOW}Checking branch name format...${COLOR_NO}"
+
+## get branch name
+BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+
+## regex to match branch name
+BRANCH_NAME_REGEX="^(main|development|(feature|test|docs|(bug|hot)fix)(\/[a-zA-Z0-9]+([-_][a-zA-Z0-9]+)*){1,2}|release\/v[0-9]+(\.[0-9]+)*(-(alpha|beta|rc)[0-9]*)?)$"
+
+## checking branch name format
+if ! [[ $BRANCH =~ $BRANCH_NAME_REGEX ]]; then
+    echo -e "${COLOR_RED}Your branch name format is not valid: $BRANCH${COLOR_NO}"
+    echo "Valid format examples:"
+    echo "feature/123-user-authentication"
+    echo "bugfix/456-fix-header-styling"
+    echo "hotfix/security-patch"
+    echo "release/v2.0.1"
+    echo "docs/654-update-readme"
+    exit 1
+else
+    echo -e "${COLOR_GREEN}Well done! Your branch name is valid.${COLOR_NO}"
+fi
+
+echo ""
+
+echo -e "${COLOR_YELLOW}Checking branch protection policy...${COLOR_NO}"
+
+## regex to match protected branch
+BRANCH_PROTECTION_REGEX="^(main|development)$"
+
+## checking branch protection policy
+if [[ ( -z $VAR_PROTECT_MAIN || $VAR_PROTECT_MAIN = true ) && $BRANCH =~ $BRANCH_PROTECTION_REGEX ]]; then
+    echo -e "${COLOR_RED}This branch '$BRANCH' is protected from commits.${COLOR_NO}"
+    echo "Please, use pull requests instead."
+    exit 1
+else
+    echo -e "${COLOR_GREEN}Branch protection policy checked.${COLOR_NO}"
+fi

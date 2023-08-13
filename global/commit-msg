@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+## read config
+if ! [[ -z $VAR_GIT_HOOKS_TEMPLATES_PATH ]]; then
+    source ${VAR_GIT_HOOKS_TEMPLATES_PATH}Git.Hooks/global/config.sh
+fi
+
+source ../Git.Hooks/global/config.sh
+source .githooks/config.sh
+
+## check arguments
+if [[ -z $1 ]]; then
+    echo -e "${COLOR_RED}Hook argument is empty!${COLOR_NO}"
+    exit 1
+fi
+
+echo -e "${COLOR_YELLOW}Checking commit message format...${COLOR_NO}"
+
+## the first arg is the path to the git commit temporary file
+TEMPORARY_FILE_PATH=$1
+
+## get commit message from the temporary file
+COMMIT_MSG=`head -n1 $TEMPORARY_FILE_PATH`
+
+## init regex to match commit message format
+REGEX="^(\[hotfix\]|#[0-9]+)( .+)+$"
+
+## checking commit message format
+if ! [[ $COMMIT_MSG =~ $REGEX ]]; then
+    echo -e "${COLOR_RED}Your commit message format is not valid:\n$COMMIT_MSG\n${COLOR_NO}"
+    echo "Valid format examples:"
+    echo "#123 My commit message"
+    echo "#123 #456 My commit message"
+    echo "[hotfix] My commit message"
+    exit 1
+else
+    echo -e "${COLOR_GREEN}Well done! Your commit message is valid.${COLOR_NO}"
+fi
