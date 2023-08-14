@@ -19,6 +19,3 @@ fi
 
 VAR_PROTECT_MAIN=true
 VAR_CHECK_UNCOMMITTED_FILES=true
-
-# terraform
-VAR_TERRAFORM_ENV_FOLDER_PATHS=("dev" "test" "prod")

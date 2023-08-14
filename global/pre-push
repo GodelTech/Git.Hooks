@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 
+zero_sha=$(git hash-object --stdin </dev/null | tr '[0-9a-f]' '0')
 read local_ref local_sha remote_ref remote_sha
+
+## check if delete branch
+if test "$local_sha" = "$zero_sha"; then
+    exit 0
+fi
 
 ## read config
 if ! [[ -z $VAR_GIT_HOOKS_TEMPLATES_PATH ]]; then

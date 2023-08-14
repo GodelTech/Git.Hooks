@@ -6,9 +6,7 @@ if ! [[ -z $VAR_GIT_HOOKS_TEMPLATES_PATH || $VAR_GIT_HOOKS_TEMPLATES_PATH = $VAR
 fi
 
 source ../Git.Hooks/dotnet/config.sh
-
-## terraform
-source ${VAR_GIT_HOOKS_TEMPLATES_PATH}Git.Hooks/terraform/pre-push
+source .githooks/dotnet/config.sh
 
 ## dotnet restore
 dotnet restore
@@ -48,3 +46,6 @@ fi
 
 ## coverage validation
 source ${VAR_GIT_HOOKS_TEMPLATES_PATH}Git.Hooks/dotnet/coverage/validation.sh
+
+## stryker
+source ${VAR_GIT_HOOKS_TEMPLATES_PATH}Git.Hooks/dotnet/Stryker/validation.sh

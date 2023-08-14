@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+## read terraform config
+if ! [[ -z $VAR_GIT_HOOKS_TEMPLATES_PATH || $VAR_GIT_HOOKS_TEMPLATES_PATH = $VAR_GIT_HOOKS_TEMPLATES_DEFAULT_PATH ]]; then
+    source ${VAR_GIT_HOOKS_TEMPLATES_PATH}Git.Hooks/terraform/config.sh
+fi
+
+source ../Git.Hooks/terraform/config.sh
+source .githooks/terraform/config.sh
+
 ## check if terraform folder has changes
 git diff --name-only --quiet -- ".terraform/*"
 
