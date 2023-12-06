@@ -8,15 +8,19 @@ fi
 source ../Git.Hooks/terraform/config.sh
 source .githooks/terraform/config.sh
 
+if ! [[ -z $VAR_PROJECT_NAME ]]; then
+    source .githooks/$VAR_PROJECT_NAME/terraform/config.sh
+fi
+
 ## check if terraform folder has changes
-git diff --name-only --quiet -- ".terraform/*"
+git diff --name-only --quiet -- "$VAR_TERRAFORM_ROOT_FOLDER_PATHS/*"
 
 if [[ $? = 0 ]]; then
     return
 fi
 
 ## terraform recursive format check
-( cd .terraform && terraform fmt -check -recursive $VAR_TERRAFORM_OUTPUT_NO_COLOR )
+( cd $VAR_TERRAFORM_ROOT_FOLDER_PATHS && terraform fmt -check -recursive $VAR_TERRAFORM_OUTPUT_NO_COLOR )
 
 if [[ $? -ne 0 ]]; then
     echo -e "${COLOR_RED}Invalid terraform format. Aborting push.${COLOR_NO}"
@@ -25,10 +29,10 @@ fi
 
 ## terraform validate envs
 for folderPath in ${VAR_TERRAFORM_ENV_FOLDER_PATHS[@]}; do
-    ( cd .terraform/$folderPath && terraform init -backend=false $VAR_TERRAFORM_OUTPUT_NO_COLOR && terraform validate $VAR_TERRAFORM_OUTPUT_NO_COLOR )
+    ( cd $VAR_TERRAFORM_ROOT_FOLDER_PATHS/$folderPath && terraform init -backend=false $VAR_TERRAFORM_OUTPUT_NO_COLOR && terraform validate $VAR_TERRAFORM_OUTPUT_NO_COLOR )
 
     if [[ $? -ne 0 ]]; then
-        echo -e "${COLOR_RED}Terraform not valid '.terraform/$folderPath'. Aborting push.${COLOR_NO}"
+        echo -e "${COLOR_RED}Terraform not valid '$VAR_TERRAFORM_ROOT_FOLDER_PATHS/$folderPath'. Aborting push.${COLOR_NO}"
         exit 1
     fi
 done
