@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+## read angular config
+if ! [[ -z $VAR_GIT_HOOKS_TEMPLATES_PATH || $VAR_GIT_HOOKS_TEMPLATES_PATH = $VAR_GIT_HOOKS_TEMPLATES_DEFAULT_PATH ]]; then
+    source ${VAR_GIT_HOOKS_TEMPLATES_PATH}Git.Hooks/angular/config.sh
+fi
+
+source ../Git.Hooks/angular/config.sh
+source .githooks/angular/config.sh
+
+if ! [[ -z $VAR_PROJECT_NAME ]]; then
+    source .githooks/$VAR_PROJECT_NAME/angular/config.sh
+fi
+
+## npm intall packages
+npm ci
+
+## build project
+ng build $VAR_ANGULAR_PROJECT_NAME --configuration $VAR_ANGULAR_BUILD_CONFIGURATION
+
+## npm validation
+source ${VAR_GIT_HOOKS_TEMPLATES_PATH}Git.Hooks/angular/npm/validation.sh
+
+## todo: temp solution to prevent git push
+echo -e "${COLOR_RED}End of script.${COLOR_NO}"
+exit 1
