@@ -18,9 +18,37 @@ npm ci
 ## build project
 ng build $VAR_ANGULAR_PROJECT_NAME --configuration $VAR_ANGULAR_BUILD_CONFIGURATION
 
+if [[ $? -ne 0 ]]; then
+    echo -e "${COLOR_RED}Build failed. Aborting push.${COLOR_NO}"
+    exit 1
+fi
+
+## linting project
+ng lint $VAR_ANGULAR_PROJECT_NAME
+
+if [[ $? -ne 0 ]]; then
+    echo -e "${COLOR_RED}Code is not correctly formatted. Aborting push.${COLOR_NO}"
+    exit 1
+fi
+
+## tsc
+tsc
+
+if [[ $? -ne 0 ]]; then
+    echo -e "${COLOR_RED}Typescript compilation failed. Aborting push.${COLOR_NO}"
+    exit 1
+fi
+
 ## npm validation
 source ${VAR_GIT_HOOKS_TEMPLATES_PATH}Git.Hooks/angular/npm/validation.sh
 
-## todo: temp solution to prevent git push
-echo -e "${COLOR_RED}End of script.${COLOR_NO}"
-exit 1
+## test with code coverage validation
+ng test $VAR_ANGULAR_PROJECT_NAME --browsers=ChromeHeadless --code-coverage=true --watch=false
+
+if [[ $? -ne 0 ]]; then
+    echo -e "${COLOR_RED}Tests failed. Aborting push.${COLOR_NO}"
+    exit 1
+fi
+
+## stryker
+source ${VAR_GIT_HOOKS_TEMPLATES_PATH}Git.Hooks/angular/Stryker/validation.sh
