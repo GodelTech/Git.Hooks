@@ -25,7 +25,7 @@ check_dotnet_coverage ()
 ## merge coverage
 dotnet tool install --global dotnet-coverage
 mkdir -p TestResults
-dotnet-coverage merge *.cobertura.xml --recursive --output TestResults/merged.cobertura.xml --output-format cobertura
+dotnet-coverage merge **/coverage.cobertura.xml --output TestResults/merged.cobertura.xml --output-format cobertura
 
 ## check line coverage
 ( check_dotnet_coverage "line-rate" true "TestResults/merged.cobertura.xml" $VAR_DOTNET_CODE_COVERAGE_LINE_MIN )
