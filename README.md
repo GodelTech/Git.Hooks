@@ -1,3 +1,6 @@
+# THIS REPOSITORY IS NO LONGER SUPPORTED
+Please check https://github.com/GodelTech/git-hooks as possible alternative
+
 # Git Hooks
 
 ## for single repository
